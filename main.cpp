@@ -128,9 +128,10 @@ void __stdcall InputTest(void* a1, void* a2) {
 		//ply->SetControlBrake(1 - ply->GetControlBrake());
 		//ply->SetControlGas(1 - ply->GetControlGas());
 
-		if (ply->GetControlGas() > 0.9) {
+		if (ply->GetControlGas() > 0.85) {
 			ply->SetControlGas(1.0);
 		}
+		//ply->SetControlClutch(0.0);
 	}
 }
 
@@ -176,7 +177,7 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 
 				ApplyVerificationPatches();
 
-				*(double*)0x9FABF8 = 1.0 / 120.0; // set sim framerate
+				NyaHookLib::Patch<double>(0x9FABF8, 1.0 / 120.0); // set sim framerate
 				*(void**)0xACDDD4 = (void*)&VehicleConstructHooked;
 				if (GetModuleHandleA("NFSPSExtraOptions.asi") || std::filesystem::exists("NFSPSExtraOptionsSettings.ini") || std::filesystem::exists("scripts/NFSPSExtraOptionsSettings.ini")) {
 					MessageBoxA(nullptr, "Potential unfair advantage detected! Please remove NFSPSExtraOptions from your game before using this mod.", "nya?!~", MB_ICONERROR);

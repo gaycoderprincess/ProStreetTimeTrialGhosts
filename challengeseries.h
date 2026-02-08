@@ -98,6 +98,26 @@ public:
 		}
 	}
 
+	bool IsDriftEvent() const {
+		auto baseRace = GRaceDatabase::GetRaceFromHash(GRaceDatabase::mObj, Attrib::StringHash32(sEventName.c_str()));
+		if (!baseRace) return false;
+
+		switch (GRaceParameters::GetRaceType(baseRace)) {
+			case GRace::kRaceType_Drift_Solo_HeadsUp:
+			case GRace::kRaceType_Drift_Solo_Mixed:
+			case GRace::kRaceType_Drift_Solo_Class:
+			case GRace::kRaceType_Drift_Race_HeadsUp:
+			case GRace::kRaceType_Drift_Race_Mixed:
+			case GRace::kRaceType_Drift_Race_Class:
+			case GRace::kRaceType_Drift_Tandem_HeadsUp:
+			case GRace::kRaceType_Drift_Tandem_Mixed:
+			case GRace::kRaceType_Drift_Tandem_Class:
+				return true;
+			default:
+				return false;
+		};
+	}
+
 	GRaceParameters* GetRace() const {
 		return GRaceDatabase::GetRaceFromHash(GRaceDatabase::mObj, Attrib::StringHash32(sEventName.c_str()));
 	}
@@ -152,23 +172,7 @@ public:
 		SkipFENumAICars = bChallengesOneGhostOnly ? 1 : 7;
 		SkipFERaceID = sEventName.c_str();
 		SkipFENumLaps = GRaceParameters::GetIsLoopingRace(race) ? GetLapCount() : 1;
-
-		/*auto baseRace = GRaceDatabase::GetRaceFromHash(GRaceDatabase::mObj, Attrib::StringHash32(SkipFERaceID));
-		auto race = GRaceDatabase::AllocCustomRace(GRaceDatabase::mObj, baseRace);
-
-		GRaceCustom::SetNumLaps(race, GRaceParameters::GetIsLoopingRace(baseRace) ? 2 : 1);
-		GRaceCustom::SetIsPracticeMode(race, false);
-		GRaceCustom::SetIsSlotcarRace(race, false);
-		GRaceCustom::SetTrafficDensity(race, 0.0);
-		GRaceCustom::SetNumOpponents(race, SkipFENumAICars);
-		GRaceCustom::SetDifficulty(race, GRace::kRaceDifficulty_Insane);
-		GRaceCustom::SetCopsEnabled(race, false);
-
-		GRaceDatabase::SetStartupRace(GRaceDatabase::mObj, race, GRace::kRaceContext_QuickRace);
-		GRaceDatabase::FreeCustomRace(GRaceDatabase::mObj, race);*/
-
 		SkipFEPlayerCar = sCarPreset.c_str();
-		NyaHookLib::Fill(0x4D4B86, 0x90, 6);
 
 		GameFlowManager::ReloadTrack(&TheGameFlowManager);
 	}
@@ -177,16 +181,24 @@ public:
 std::vector<ChallengeSeriesEvent> aNewChallengeSeries = {
 	ChallengeSeriesEvent("L6R_ChicagoAirfield", "1.gr.1", "player_d_day", 2),
 	ChallengeSeriesEvent("L6R_AutobahnDrift", "14.gr.1", "grip_king", 2),
+	ChallengeSeriesEvent("L6R_NevadaDrift", "5.gr.1", "p_ch_t1_nvd_grip"),
 	ChallengeSeriesEvent("L6R_Autopolis", "19.gr.2", "energizer_viper"),
-	ChallengeSeriesEvent("L6R_AutobahnDrift", "34.td.1", "drift_king"),
+	//ChallengeSeriesEvent("L6R_AutobahnDrift", "34.td.1", "drift_king"),
 	ChallengeSeriesEvent("L6R_NevadaDrift", "82.hs.2", "sc_king"),
-	ChallengeSeriesEvent("L6R_LEIPZIG", "lg.9.1.6", "showdown_entourage_2_drift"),
+	//ChallengeSeriesEvent("L6R_LEIPZIG", "lg.9.1.6", "showdown_entourage_2_drift"),
 	ChallengeSeriesEvent("L6R_AutobahnDrift", "17.hs.1", "fe_sc_3_fordgt"),
+	ChallengeSeriesEvent("L6R_LEIPZIG", "lg.9.2.6", "fe_grip_3_supra", 2),
+	ChallengeSeriesEvent("L6R_Ebisu", "20.gr.1", "fe_grip_1_rx8"),
 	ChallengeSeriesEvent("L6R_WillowSprings", "3.gr.2", "sc_entourage_1_sc"),
 	ChallengeSeriesEvent("L6R_ChicagoAirfield", "7.gr.1", "showdown_king_final_grip"),
-	ChallengeSeriesEvent("L6R_Ebisu", "50.sd.3", "drift_entourage_3_drift"),
+	//ChallengeSeriesEvent("L6R_Ebisu", "50.sd.3", "drift_entourage_3_drift"),
+	ChallengeSeriesEvent("L6R_Ebisu", "22.hs.1", "fe_sc_3_caymans"),
+	ChallengeSeriesEvent("L6R_ShutoDrift", "so.9.2.4", "fe_grip_2_g35"),
 	ChallengeSeriesEvent("L6R_PortlandRaceway", "35.gr.1", "fe_grip_2_cosworth", 2),
+	ChallengeSeriesEvent("L6R_MondelloPark", "21.gr.1", "p_ch_t3_autob_grip", 2),
+	ChallengeSeriesEvent("L6R_INFINEON", "25.gr.1", "fe_grip_2_eclipse", 2),
 	ChallengeSeriesEvent("L6R_ShutoDrift", "so.9.2.1", "fe_sc_2_rx8"),
+	ChallengeSeriesEvent("L6R_TexasSpeedway", "31.gr.1", "fe_grip_3_murc640", 2),
 };
 
 ChallengeSeriesEvent* GetChallengeEvent(uint32_t hash) {
@@ -218,13 +230,15 @@ void OnChallengeSeriesEventPB() {
 ChallengeSeriesEvent* pEventToStart = nullptr;
 void ChallengeSeriesMenu() {
 	for (auto& event : aNewChallengeSeries) {
+		if (event.IsDriftEvent()) continue;
+
 		auto pb = event.GetPBGhost();
 		auto target = event.GetTargetGhost();
 		auto optionName = std::format("{} - {}", event.GetEventTypeName(), event.GetTrackName());
 
 		auto targetName = GetRealPlayerName(target.sPlayerName);
 		auto targetTime = std::format("Target Time - {} ({})", FormatTime(target.nFinishTime), targetName);
-		if (event.GetEventTypeName() == "Drift") {
+		if (event.IsDriftEvent()) {
 			targetTime = std::format("Target - {} ({})", FormatScore(target.nFinishPoints), targetName);
 		}
 
@@ -245,7 +259,7 @@ void ChallengeSeriesMenu() {
 			DrawMenuOption(std::format("Car - {}", event.sCarPreset));
 			DrawMenuOption(targetTime);
 			if (pb.nFinishTime != 0) {
-				DrawMenuOption(std::format("Personal Best - {}", event.GetEventTypeName() == "Drift" ? FormatScore(pb.nFinishPoints) : FormatTime(pb.nFinishTime)));
+				DrawMenuOption(std::format("Personal Best - {}", event.IsDriftEvent() ? FormatScore(pb.nFinishPoints) : FormatTime(pb.nFinishTime)));
 			}
 			if (DrawMenuOption("Launch Event")) {
 				pEventToStart = &event;
