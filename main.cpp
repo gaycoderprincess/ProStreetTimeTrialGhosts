@@ -118,6 +118,22 @@ void RenderLoop() {
 	TimeTrialRenderLoop();
 }
 
+auto InputTest_orig = (void(__stdcall*)(void*, void*))nullptr;
+void __stdcall InputTest(void* a1, void* a2) {
+	InputTest_orig(a1, a2);
+	if (auto ply = GetLocalPlayerInterface<IInput>()) {
+		//if (GRaceStatus::fObj && GRaceStatus::fObj->mRaceParms) {
+		//	if (GRaceStatus::fObj->mRaceMasterTimer.GetTime() < 2) ply->SetControlBrake(0);
+		//}
+		//ply->SetControlBrake(1 - ply->GetControlBrake());
+		//ply->SetControlGas(1 - ply->GetControlGas());
+
+		if (ply->GetControlGas() > 0.9) {
+			ply->SetControlGas(1.0);
+		}
+	}
+}
+
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
@@ -138,6 +154,10 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 					NyaHookLib::Fill(0x494059 + 2, 0x90, 4);
 					NyaHookLib::Patch<uint16_t>(0x49296F, 0xEED9);
 					NyaHookLib::Patch<uint16_t>(0x494059, 0xEED9);
+				}
+				if (config["gas_pedal_hack"].value_or(false)) {
+					InputTest_orig = (void(__stdcall*)(void*, void*))NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x41B5A8, &InputTest);
+					//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x41B3FE, &InputTestASM);
 				}
 			}
 

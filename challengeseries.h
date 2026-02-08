@@ -55,7 +55,7 @@ public:
 			case GRace::kRaceType_SpeedChallenge_HeadsUp:
 			case GRace::kRaceType_SpeedChallenge_Mixed:
 			case GRace::kRaceType_SpeedChallenge_Class:
-				return "Speed Challenge";
+				return "Speed";
 			case GRace::kRaceType_Circuit_HeadsUp:
 			case GRace::kRaceType_Circuit_Mixed:
 			case GRace::kRaceType_Circuit_Class:
@@ -176,12 +176,17 @@ public:
 
 std::vector<ChallengeSeriesEvent> aNewChallengeSeries = {
 	ChallengeSeriesEvent("L6R_ChicagoAirfield", "1.gr.1", "player_d_day", 2),
-	ChallengeSeriesEvent("L6R_AutobahnDrift", "14.gr.1", "grip_king"),
-	ChallengeSeriesEvent("L6R_Autopolis", "19.gr.2", "grip_king"),
+	ChallengeSeriesEvent("L6R_AutobahnDrift", "14.gr.1", "grip_king", 2),
+	ChallengeSeriesEvent("L6R_Autopolis", "19.gr.2", "energizer_viper"),
 	ChallengeSeriesEvent("L6R_AutobahnDrift", "34.td.1", "drift_king"),
-	ChallengeSeriesEvent("L6R_LEIPZIG", "lg.9.1.6", "showdown_entourage_2_drift"),
 	ChallengeSeriesEvent("L6R_NevadaDrift", "82.hs.2", "sc_king"),
+	ChallengeSeriesEvent("L6R_LEIPZIG", "lg.9.1.6", "showdown_entourage_2_drift"),
+	ChallengeSeriesEvent("L6R_AutobahnDrift", "17.hs.1", "fe_sc_3_fordgt"),
+	ChallengeSeriesEvent("L6R_WillowSprings", "3.gr.2", "sc_entourage_1_sc"),
 	ChallengeSeriesEvent("L6R_ChicagoAirfield", "7.gr.1", "showdown_king_final_grip"),
+	ChallengeSeriesEvent("L6R_Ebisu", "50.sd.3", "drift_entourage_3_drift"),
+	ChallengeSeriesEvent("L6R_PortlandRaceway", "35.gr.1", "fe_grip_2_cosworth", 2),
+	ChallengeSeriesEvent("L6R_ShutoDrift", "so.9.2.1", "fe_sc_2_rx8"),
 };
 
 ChallengeSeriesEvent* GetChallengeEvent(uint32_t hash) {
