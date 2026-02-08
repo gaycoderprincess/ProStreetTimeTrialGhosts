@@ -4,7 +4,7 @@ A mod for Need for Speed: ProStreet that replaces Quick Race opponents with Trac
 
 ## Installation
 
-- Make sure you have v1.1 of the game, as this is the only version this plugin is compatible with. (exe size of 3765248 bytes)
+- Make sure you have v1.1 of the game, as this is the only version this plugin is compatible with. (exe size of 3765248 or 28739656 bytes)
 - Plop the files into your game folder.
 - Start the game and press F5 to open the mod's menu and play the included Challenge Series.
 - Enjoy, nya~ :3
