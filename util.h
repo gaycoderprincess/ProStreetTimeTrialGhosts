@@ -254,6 +254,12 @@ std::string FormatScore(int a1) {
 	return std::format("{},{:03}", v4, a1 % 1000);
 }
 
+std::string FormatTime(uint32_t a1) {
+	auto str = GetTimeFromMilliseconds(a1);
+	str.pop_back();
+	return str;
+}
+
 void SetRacerAIEnabled(bool enabled) { // disable only, actually
 	NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x41F040, 0x408680); // replace AIVehicleRacecar update with AIVehicleEmpty update
 }

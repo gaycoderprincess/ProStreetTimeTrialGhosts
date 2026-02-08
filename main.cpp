@@ -51,14 +51,23 @@ auto OnEventFinished_orig = (void(__thiscall*)(GRaceStatus*, int))nullptr;
 void __thiscall OnEventFinished(GRaceStatus* a1, int a2) {
 	OnEventFinished_orig(a1, a2);
 
-	//if ((!a1 || a1 == GetLocalPlayerSimable()) && !GetLocalPlayerVehicle()->IsDestroyed()) {
-	if (!GetLocalPlayerVehicle()->IsDestroyed()) {
-		DLLDirSetter _setdir;
-		OnFinishRace();
+	auto veh = GetLocalPlayerVehicle();
+	if (veh->IsDestroyed()) return;
+	if (veh->mCOMObject->Find<IDamageable>()->IsDestroyed()) return;
 
-		// do a config save when finishing a race
-		DoConfigSave();
-	}
+	auto finishReason = GRaceStatus::fObj->mRacerInfo[0].mStats.arbitrated.mFinishReason;
+	if (finishReason == GRacerInfo::kReason_Totalled) return;
+	if (finishReason == GRacerInfo::kReason_EngineBlown) return;
+	if (finishReason == GRacerInfo::kReason_FalseStart) return;
+	if (finishReason == GRacerInfo::kReason_KnockedOut) return;
+
+	if (GRaceStatus::fObj->mRacerInfo[0].mOpponent->GetDamageSeverity() >= GIOpponent::kDamageSeverity_Totalled) return;
+
+	DLLDirSetter _setdir;
+	OnFinishRace();
+
+	// do a config save when finishing a race
+	DoConfigSave();
 }
 
 auto OnRestartRace_orig = (void(__thiscall*)(void*))nullptr;

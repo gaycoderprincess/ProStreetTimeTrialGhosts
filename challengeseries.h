@@ -5,6 +5,12 @@ public:
 	std::string sCarPreset;
 	int nLapCountOverride = 0;
 
+	bool bPBGhostLoading = false;
+	bool bTargetGhostLoading = false;
+	tReplayGhost PBGhost = {};
+	tReplayGhost aTargetGhosts[NUM_DIFFICULTY] = {};
+	int nNumGhosts[NUM_DIFFICULTY] = {};
+
 	ChallengeSeriesEvent(const char* trackName, const char* eventName, const char* carPreset, int lapCount = 0) : sTrackName(trackName), sEventName(eventName), sCarPreset(carPreset), nLapCountOverride(lapCount) {}
 
 	int GetTrackID() const {
@@ -92,6 +98,50 @@ public:
 		}
 	}
 
+	GRaceParameters* GetRace() const {
+		return GRaceDatabase::GetRaceFromHash(GRaceDatabase::mObj, Attrib::StringHash32(sEventName.c_str()));
+	}
+
+	int GetLapCount() {
+		if (nLapCountOverride > 0) return nLapCountOverride;
+		return nLapCountOverride = GRaceParameters::GetNumLaps(GetRace());
+	}
+
+	void ClearPBGhost() {
+		PBGhost = {};
+	}
+
+	tReplayGhost GetPBGhost() {
+		while (bPBGhostLoading) { Sleep(0); }
+
+		if (PBGhost.nFinishTime != 0) return PBGhost;
+
+		bPBGhostLoading = true;
+		tReplayGhost temp;
+		LoadPB(&temp, sCarPreset, sEventName, GetLapCount(), 0, nullptr);
+		temp.aTicks.clear(); // just in case
+		PBGhost = temp;
+		bPBGhostLoading = false;
+		return temp;
+	}
+
+	tReplayGhost GetTargetGhost() {
+		while (bTargetGhostLoading) { Sleep(0); }
+
+		if (aTargetGhosts[nDifficulty].nFinishTime != 0) return aTargetGhosts[nDifficulty];
+
+		bTargetGhostLoading = true;
+		tReplayGhost targetTime;
+		auto times = CollectReplayGhosts(sCarPreset, sEventName, GetLapCount(), nullptr);
+		if (!times.empty()) {
+			times[0].aTicks.clear(); // just in case
+			targetTime = aTargetGhosts[nDifficulty] = times[0];
+		}
+		nNumGhosts[nDifficulty] = times.size();
+		bTargetGhostLoading = false;
+		return targetTime;
+	}
+
 	void SetupEvent() const {
 		if (TheGameFlowManager.CurrentGameFlowState != GAMEFLOW_STATE_RACING) return;
 
@@ -123,6 +173,12 @@ public:
 
 std::vector<ChallengeSeriesEvent> aNewChallengeSeries = {
 	ChallengeSeriesEvent("L6R_ChicagoAirfield", "1.gr.1", "player_d_day"),
+	ChallengeSeriesEvent("L6R_AutobahnDrift", "14.gr.1", "grip_king"),
+	ChallengeSeriesEvent("L6R_Autopolis", "19.gr.2", "grip_king"),
+	ChallengeSeriesEvent("L6R_AutobahnDrift", "34.td.1", "drift_king"),
+	ChallengeSeriesEvent("L6R_LEIPZIG", "lg.9.1.6", "showdown_entourage_2_drift"),
+	ChallengeSeriesEvent("L6R_NevadaDrift", "82.hs.2", "sc_king"),
+	ChallengeSeriesEvent("L6R_ChicagoAirfield", "7.gr.1", "showdown_king_final_grip"),
 };
 
 ChallengeSeriesEvent* GetChallengeEvent(uint32_t hash) {
@@ -148,21 +204,41 @@ ChallengeSeriesEvent* GetChallengeEvent(const std::string& str) {
 void OnChallengeSeriesEventPB() {
 	auto event = GetChallengeEvent(GRaceParameters::GetEventID(GRaceStatus::fObj->mRaceParms));
 	if (!event) return;
-	//event->ClearPBGhost();
+	event->ClearPBGhost();
 }
 
 ChallengeSeriesEvent* pEventToStart = nullptr;
 void ChallengeSeriesMenu() {
 	for (auto& event : aNewChallengeSeries) {
-		if (DrawMenuOption(std::format("{} - {}", event.GetEventTypeName(), event.GetTrackName()))) {
+		auto pb = event.GetPBGhost();
+		auto target = event.GetTargetGhost();
+		auto optionName = std::format("{} - {}", event.GetEventTypeName(), event.GetTrackName());
+
+		auto targetName = GetRealPlayerName(target.sPlayerName);
+		auto targetTime = std::format("Target Time - {} ({})", FormatTime(target.nFinishTime), targetName);
+		if (event.GetEventTypeName() == "Drift") {
+			targetTime = std::format("Target - {} ({})", FormatScore(target.nFinishPoints), targetName);
+		}
+
+		if (pb.nFinishTime != 0) {
+			bool won = pb.nFinishTime <= target.nFinishTime;
+			if (pb.nFinishPoints && target.nFinishPoints) {
+				won = pb.nFinishPoints >= target.nFinishPoints;
+			}
+			if (won) {
+				optionName += std::format(" - Completed");
+			}
+		}
+
+		if (DrawMenuOption(optionName, targetTime)) {
 			ChloeMenuLib::BeginMenu();
 			DrawMenuOption(std::format("Track - {}", event.GetTrackName()));
 			DrawMenuOption(std::format("Type - {}", event.GetEventTypeName()));
 			DrawMenuOption(std::format("Car - {}", event.sCarPreset));
-			//DrawMenuOption(targetTime);
-			//if (pb.nFinishTime != 0) {
-			//	DrawMenuOption(std::format("Personal Best - {}", event.nEventType == EVENT_DRIFT ? FormatScore(pb.nFinishPoints) : FormatTime(pb.nFinishTime)));
-			//}
+			DrawMenuOption(targetTime);
+			if (pb.nFinishTime != 0) {
+				DrawMenuOption(std::format("Personal Best - {}", event.GetEventTypeName() == "Drift" ? FormatScore(pb.nFinishPoints) : FormatTime(pb.nFinishTime)));
+			}
 			if (DrawMenuOption("Launch Event")) {
 				pEventToStart = &event;
 			}
