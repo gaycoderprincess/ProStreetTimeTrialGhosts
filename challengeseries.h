@@ -25,9 +25,11 @@ public:
 	}
 
 	void SetupEvent() const {
+		if (TheGameFlowManager.CurrentGameFlowState != GAMEFLOW_STATE_RACING) return;
+
 		RaceParameters::InitWithDefaults(&TheRaceParameters);
 		SkipFETrackNumber = TheRaceParameters.TrackNumber = GetTrackID();
-		SkipFENumAICars = 7;
+		SkipFENumAICars = bChallengesOneGhostOnly ? 1 : 7;
 		SkipFERaceID = sEventName.c_str();
 
 		/*auto baseRace = GRaceDatabase::GetRaceFromHash(GRaceDatabase::mObj, Attrib::StringHash32(SkipFERaceID));
@@ -54,3 +56,38 @@ public:
 std::vector<ChallengeSeriesEvent> aNewChallengeSeries = {
 		ChallengeSeriesEvent("L6R_ChicagoAirfield", "1.gr.1", "player_d_day"),
 };
+
+ChallengeSeriesEvent* GetChallengeEvent(uint32_t hash) {
+	for (auto& event : aNewChallengeSeries) {
+		if (!GRaceDatabase::GetRaceFromHash(GRaceDatabase::mObj, Attrib::StringHash32(event.sEventName.c_str()))) {
+			MessageBoxA(0, std::format("Failed to find event {}", event.sEventName).c_str(), "nya?!~", MB_ICONERROR);
+			exit(0);
+		}
+	}
+	for (auto& event : aNewChallengeSeries) {
+		if (Attrib::StringHash32(event.sEventName.c_str()) == hash) return &event;
+	}
+	return nullptr;
+}
+
+ChallengeSeriesEvent* GetChallengeEvent(const std::string& str) {
+	for (auto& event : aNewChallengeSeries) {
+		if (event.sEventName == str) return &event;
+	}
+	return nullptr;
+}
+
+void OnChallengeSeriesEventPB() {
+	auto event = GetChallengeEvent(GRaceParameters::GetEventID(GRaceStatus::fObj->mRaceParms));
+	if (!event) return;
+	//event->ClearPBGhost();
+}
+
+ChallengeSeriesEvent* pEventToStart = nullptr;
+void ChallengeSeriesMenu() {
+	for (auto& event : aNewChallengeSeries) {
+		if (DrawMenuOption(std::format("{} - {}", event.GetTrackName(), event.sEventName))) {
+			pEventToStart = &event;
+		}
+	}
+}

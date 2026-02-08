@@ -1,7 +1,11 @@
 void UpdateD3DProperties() {
-	g_pd3dDevice = GameD3DDevice;
+	g_pd3dDevice = *GameD3DDevice;
 	ghWnd = GameWindow;
-	GetRacingResolution(&nResX, &nResY);
+
+	RECT rect;
+	GetClientRect(GameWindow, &rect);
+	nResX = rect.right - rect.left;
+	nResY = rect.bottom - rect.top;
 }
 
 bool bDeviceJustReset = false;

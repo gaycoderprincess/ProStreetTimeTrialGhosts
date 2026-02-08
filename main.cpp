@@ -11,7 +11,7 @@
 #include "chloemenulib.h"
 
 bool bCareerMode = false;
-bool bChallengeSeriesMode = false;
+bool bChallengeSeriesMode = true;
 
 #include "util.h"
 #include "d3dhook.h"
@@ -47,23 +47,72 @@ bool __thiscall DeterminePlatformSceneHooked(void* pThis, char* out) {
 	return true;
 }
 
-ChallengeSeriesEvent* pEventToStart = nullptr;
+auto OnEventFinished_orig = (void(__thiscall*)(GRaceStatus*, int))nullptr;
+void __thiscall OnEventFinished(GRaceStatus* a1, int a2) {
+	OnEventFinished_orig(a1, a2);
+
+	//if ((!a1 || a1 == GetLocalPlayerSimable()) && !GetLocalPlayerVehicle()->IsDestroyed()) {
+	if (!GetLocalPlayerVehicle()->IsDestroyed()) {
+		DLLDirSetter _setdir;
+		OnFinishRace();
+
+		// do a config save when finishing a race
+		DoConfigSave();
+	}
+}
+
+auto OnRestartRace_orig = (void(__thiscall*)(void*))nullptr;
+void __thiscall OnRestartRace(void* a1) {
+	OnRestartRace_orig(a1);
+	OnRaceRestart();
+}
+
 void MainLoop() {
+	static double simTime = -1;
+
+	if (!Sim::Exists() || Sim::GetState() != Sim::STATE_ACTIVE) {
+		simTime = -1;
+		return;
+	}
+	if (simTime == Sim::GetTime()) return;
+	simTime = Sim::GetTime();
+
+	DLLDirSetter _setdir;
+	TimeTrialLoop();
+
 	if (pEventToStart) {
 		pEventToStart->SetupEvent();
 		pEventToStart = nullptr;
 	}
 }
 
+void RenderLoop() {
+	VerifyTimers();
+	TimeTrialRenderLoop();
+}
+
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
-			if (NyaHookLib::GetEntryPoint() != 0x16AA080) {
-				MessageBoxA(nullptr, "Unsupported game version! Make sure you're using v1.1 (.exe size of 3765248 bytes)", "nya?!~", MB_ICONERROR);
+			if (NyaHookLib::GetEntryPoint() != 0x16AA080 && NyaHookLib::GetEntryPoint() != 0x428C25) {
+				MessageBoxA(nullptr, "Unsupported game version! Make sure you're using v1.1 (.exe size of 3765248 or 28739656 bytes)", "nya?!~", MB_ICONERROR);
 				return TRUE;
 			}
 
+			gDLLPath = std::filesystem::current_path();
+			GetCurrentDirectoryW(MAX_PATH, gDLLDir);
+
 			ChloeMenuLib::RegisterMenu("Time Trial Ghosts", &DebugMenu);
+
+			if (std::filesystem::exists("NFSPSTimeTrialGhosts_gcp.toml")) {
+				auto config = toml::parse_file("NFSPSTimeTrialGhosts_gcp.toml");
+				if (config["tank_unslapper"].value_or(false)) {
+					NyaHookLib::Fill(0x49296F + 2, 0x90, 4);
+					NyaHookLib::Fill(0x494059 + 2, 0x90, 4);
+					NyaHookLib::Patch<uint16_t>(0x49296F, 0xEED9);
+					NyaHookLib::Patch<uint16_t>(0x494059, 0xEED9);
+				}
+			}
 
 			NyaHooks::SkipFEFixes::Init();
 
@@ -73,9 +122,9 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHooks::LateInitHook::aPreFunctions.push_back(FileIntegrity::VerifyGameFiles);
 			NyaHooks::LateInitHook::aFunctions.push_back([]() {
 				NyaHooks::PlaceD3DHooks();
-				NyaHooks::D3DEndSceneHook::aPreFunctions.push_back(CollectPlayerPos);
+				NyaHooks::WorldServiceHook::aPreFunctions.push_back(CollectPlayerPos);
+				NyaHooks::WorldServiceHook::aPostFunctions.push_back(CheckPlayerPos);
 				NyaHooks::D3DEndSceneHook::aFunctions.push_back(D3DHookMain);
-				NyaHooks::D3DEndSceneHook::aFunctions.push_back(CheckPlayerPos);
 				NyaHooks::D3DResetHook::aFunctions.push_back(OnD3DReset);
 
 				ApplyVerificationPatches();
@@ -88,9 +137,16 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 				}
 			});
 
+			OnEventFinished_orig = (void(__thiscall*)(GRaceStatus*, int))(*(uint32_t*)(0x6F68BB + 1));
+			NyaHookLib::Patch(0x6F68BB + 1, &OnEventFinished);
+
 			//NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4E1610, &DeterminePlatformSceneHooked);
 
+			OnRestartRace_orig = (void(__thiscall*)(void*))NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x6B4613, &OnRestartRace);
+
 			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x5BEA1E, 0x6DBC10); // ReloadTrack instead of UnloadTrack, for the totaled prompt
+
+			SetRacerAIEnabled(false);
 
 			SkipFE = true;
 			SkipFEForever = true;
@@ -105,6 +161,10 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			SkipFEBrakingAssistLevel = 0;
 
 			ApplyCarRenderHooks();
+
+			DoConfigLoad();
+
+			WriteLog("Mod initialized");
 		} break;
 		default:
 			break;

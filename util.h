@@ -1,11 +1,14 @@
 typedef void GameCustomizationRecord;
 
+std::mutex mLogMutex;
 void WriteLog(const std::string& str) {
 	static auto file = std::ofstream("NFSPSTimeTrialGhosts_gcp.log");
 
+	mLogMutex.lock();
 	file << str;
 	file << "\n";
 	file.flush();
+	mLogMutex.unlock();
 }
 
 bool IsInLoadingScreen() {
@@ -251,8 +254,8 @@ std::string FormatScore(int a1) {
 	return std::format("{},{:03}", v4, a1 % 1000);
 }
 
-void SetRacerAIEnabled(bool enabled) {
-	NyaHookLib::Patch(0x9C4F80, enabled ? 0x4366C0 : 0x43EE30); // replace AIVehicleRacecar update with AIVehicleEmpty update
+void SetRacerAIEnabled(bool enabled) { // disable only, actually
+	NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x41F040, 0x408680); // replace AIVehicleRacecar update with AIVehicleEmpty update
 }
 
 std::filesystem::path gDLLPath;
