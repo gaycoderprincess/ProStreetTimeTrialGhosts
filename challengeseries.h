@@ -142,13 +142,16 @@ public:
 		return targetTime;
 	}
 
-	void SetupEvent() const {
+	void SetupEvent() {
 		if (TheGameFlowManager.CurrentGameFlowState != GAMEFLOW_STATE_RACING) return;
+
+		auto race = GRaceDatabase::GetRaceFromHash(GRaceDatabase::mObj, Attrib::StringHash32(SkipFERaceID));
 
 		RaceParameters::InitWithDefaults(&TheRaceParameters);
 		SkipFETrackNumber = TheRaceParameters.TrackNumber = GetTrackID();
 		SkipFENumAICars = bChallengesOneGhostOnly ? 1 : 7;
 		SkipFERaceID = sEventName.c_str();
+		SkipFENumLaps = GRaceParameters::GetIsLoopingRace(race) ? GetLapCount() : 1;
 
 		/*auto baseRace = GRaceDatabase::GetRaceFromHash(GRaceDatabase::mObj, Attrib::StringHash32(SkipFERaceID));
 		auto race = GRaceDatabase::AllocCustomRace(GRaceDatabase::mObj, baseRace);
@@ -172,7 +175,7 @@ public:
 };
 
 std::vector<ChallengeSeriesEvent> aNewChallengeSeries = {
-	ChallengeSeriesEvent("L6R_ChicagoAirfield", "1.gr.1", "player_d_day"),
+	ChallengeSeriesEvent("L6R_ChicagoAirfield", "1.gr.1", "player_d_day", 2),
 	ChallengeSeriesEvent("L6R_AutobahnDrift", "14.gr.1", "grip_king"),
 	ChallengeSeriesEvent("L6R_Autopolis", "19.gr.2", "grip_king"),
 	ChallengeSeriesEvent("L6R_AutobahnDrift", "34.td.1", "drift_king"),

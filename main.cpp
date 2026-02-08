@@ -54,14 +54,11 @@ void __thiscall OnEventFinished(GRaceStatus* a1, int a2) {
 	auto veh = GetLocalPlayerVehicle();
 	if (veh->IsDestroyed()) return;
 	if (veh->mCOMObject->Find<IDamageable>()->IsDestroyed()) return;
+	if (GetOpponentDamage(GetLocalPlayerSimable()) >= Tweak_TotalledDamage) return;
 
-	auto finishReason = GRaceStatus::fObj->mRacerInfo[0].mStats.arbitrated.mFinishReason;
-	if (finishReason == GRacerInfo::kReason_Totalled) return;
-	if (finishReason == GRacerInfo::kReason_EngineBlown) return;
-	if (finishReason == GRacerInfo::kReason_FalseStart) return;
-	if (finishReason == GRacerInfo::kReason_KnockedOut) return;
-
-	if (GRaceStatus::fObj->mRacerInfo[0].mOpponent->GetDamageSeverity() >= GIOpponent::kDamageSeverity_Totalled) return;
+	auto racer = GRaceStatus::GetRacerInfo(GRaceStatus::fObj, GetLocalPlayerSimable());
+	if (racer->mOpponent->GetDamageSeverity() >= GIOpponent::kDamageSeverity_Totalled) return;
+	if (racer->mOpponent->GetDamageLevel() >= Tweak_TotalledDamage) return;
 
 	DLLDirSetter _setdir;
 	OnFinishRace();
