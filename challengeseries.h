@@ -145,7 +145,7 @@ public:
 	void SetupEvent() {
 		if (TheGameFlowManager.CurrentGameFlowState != GAMEFLOW_STATE_RACING) return;
 
-		auto race = GRaceDatabase::GetRaceFromHash(GRaceDatabase::mObj, Attrib::StringHash32(SkipFERaceID));
+		auto race = GRaceDatabase::GetRaceFromHash(GRaceDatabase::mObj, Attrib::StringHash32(sEventName.c_str()));
 
 		RaceParameters::InitWithDefaults(&TheRaceParameters);
 		SkipFETrackNumber = TheRaceParameters.TrackNumber = GetTrackID();

@@ -86,6 +86,27 @@ void MainLoop() {
 	DLLDirSetter _setdir;
 	TimeTrialLoop();
 
+	if (auto ply = GetLocalPlayerVehicle()) {
+		if (auto settings = GetLocalPlayer()->GetSettings()) {
+			settings->BestLineOn = gIngameSettings.BestLineOn;
+			settings->Transmission = gIngameSettings.Transmission;
+			settings->GripTransmission = gIngameSettings.Transmission;
+			settings->DriftTransmission = gIngameSettings.Transmission;
+			settings->SpeedTransmission = gIngameSettings.Transmission;
+		}
+
+		for (int i = 0; i < NUM_DRIVER_AIDS; i++) {
+			if (ply->GetDriverAidLevel((DriverAidType)i) == 0) continue;
+			ply->SetDriverAidLevel((DriverAidType)i, 0, true);
+		}
+
+		if (ply->IsStaging()) {
+			if (auto racer = GRaceStatus::GetRacerInfo(GRaceStatus::fObj, GetLocalPlayerSimable())) {
+				racer->mOpponent->RepairDamage();
+			}
+		}
+	}
+
 	if (pEventToStart) {
 		pEventToStart->SetupEvent();
 		pEventToStart = nullptr;
