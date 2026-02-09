@@ -24,7 +24,7 @@ public:
 	}
 
 	std::string GetTrackName() const {
-		if (sTrackName == "L6R_AutobahnDrift") return "Autobahn";
+		if (sTrackName == "L6R_AutobahnDrift") return "Autobahnring";
 		if (sTrackName == "L6R_Autopolis") return "Autopolis";
 		if (sTrackName == "L6R_ChicagoAirfield") return "Chicago Airfield";
 		if (sTrackName == "L6R_Ebisu") return "Ebisu";
@@ -33,7 +33,7 @@ public:
 		if (sTrackName == "L6R_MondelloPark") return "Mondello Park";
 		if (sTrackName == "L6R_NevadaDrift") return "Nevada Desert";
 		if (sTrackName == "L6R_PortlandRaceway") return "Portland Raceway";
-		if (sTrackName == "L6R_ShutoDrift") return "Shuto Drift";
+		if (sTrackName == "L6R_ShutoDrift") return "Tokyo Dockyard";
 		if (sTrackName == "L6R_ShutoExpressway") return "Shuto Expressway";
 		if (sTrackName == "L6R_TexasSpeedway") return "Texas Speedway";
 		if (sTrackName == "L6R_WillowSprings") return "Willow Springs";
@@ -256,8 +256,6 @@ void OnChallengeSeriesEventPB() {
 ChallengeSeriesEvent* pEventToStart = nullptr;
 void ChallengeSeriesMenu() {
 	for (auto& event : aNewChallengeSeries) {
-		//if (event.IsDriftEvent()) continue;
-
 		auto pb = event.GetPBGhost();
 		auto target = event.GetTargetGhost();
 		auto optionName = std::format("{} - {}", event.GetEventTypeName(), event.GetTrackName());
