@@ -195,6 +195,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 
 			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x5BEA1E, 0x6DBC10); // ReloadTrack instead of UnloadTrack, for the totaled prompt
 
+			NyaHookLib::Patch<uint8_t>(0x6DD308 + 4, 0); // remove steering wheel bonus for drifting
+
 			SetRacerAIEnabled(false);
 
 			SkipFE = true;
