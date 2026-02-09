@@ -100,10 +100,11 @@ void MainLoop() {
 			ply->SetDriverAidLevel((DriverAidType)i, 0, true);
 		}
 
-		if (ply->IsStaging()) {
-			if (auto racer = GRaceStatus::GetRacerInfo(GRaceStatus::fObj, GetLocalPlayerSimable())) {
+		if (auto racer = GRaceStatus::GetRacerInfo(GRaceStatus::fObj, GetLocalPlayerSimable())) {
+			if (ply->IsStaging()) {
 				racer->mOpponent->RepairDamage();
 			}
+			racer->mStats.local.mDriftFactor = 1.0;
 		}
 	}
 

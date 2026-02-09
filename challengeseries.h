@@ -118,6 +118,20 @@ public:
 		};
 	}
 
+	bool IsSpeedEvent() const {
+		auto baseRace = GRaceDatabase::GetRaceFromHash(GRaceDatabase::mObj, Attrib::StringHash32(sEventName.c_str()));
+		if (!baseRace) return false;
+
+		switch (GRaceParameters::GetRaceType(baseRace)) {
+			case GRace::kRaceType_SpeedChallenge_HeadsUp:
+			case GRace::kRaceType_SpeedChallenge_Mixed:
+			case GRace::kRaceType_SpeedChallenge_Class:
+				return true;
+			default:
+				return false;
+		};
+	}
+
 	GRaceParameters* GetRace() const {
 		return GRaceDatabase::GetRaceFromHash(GRaceDatabase::mObj, Attrib::StringHash32(sEventName.c_str()));
 	}
@@ -173,6 +187,15 @@ public:
 		SkipFERaceID = sEventName.c_str();
 		SkipFENumLaps = GRaceParameters::GetIsLoopingRace(race) ? GetLapCount() : 1;
 		SkipFEPlayerCar = sCarPreset.c_str();
+		if (IsSpeedEvent()) {
+			SkipFEPlayerBluePrintType = BLUEPRINT_SPEED_CHALLENGE;
+		}
+		else if (IsDriftEvent()) {
+			SkipFEPlayerBluePrintType = BLUEPRINT_DRIFT;
+		}
+		else {
+			SkipFEPlayerBluePrintType = BLUEPRINT_GRIP;
+		}
 
 		GameFlowManager::ReloadTrack(&TheGameFlowManager);
 	}
@@ -183,19 +206,22 @@ std::vector<ChallengeSeriesEvent> aNewChallengeSeries = {
 	ChallengeSeriesEvent("L6R_AutobahnDrift", "14.gr.1", "grip_king", 2),
 	ChallengeSeriesEvent("L6R_NevadaDrift", "5.gr.1", "p_ch_t1_nvd_grip"),
 	ChallengeSeriesEvent("L6R_Autopolis", "19.gr.2", "energizer_viper"),
-	//ChallengeSeriesEvent("L6R_AutobahnDrift", "34.td.1", "drift_king"),
+	ChallengeSeriesEvent("L6R_AutobahnDrift", "34.td.1", "drift_king"),
 	ChallengeSeriesEvent("L6R_NevadaDrift", "82.hs.2", "sc_king"),
-	//ChallengeSeriesEvent("L6R_LEIPZIG", "lg.9.1.6", "showdown_entourage_2_drift"),
+	ChallengeSeriesEvent("L6R_LEIPZIG", "lg.9.1.6", "showdown_entourage_2_drift"),
 	ChallengeSeriesEvent("L6R_AutobahnDrift", "17.hs.1", "fe_sc_3_fordgt"),
 	ChallengeSeriesEvent("L6R_LEIPZIG", "lg.9.2.6", "fe_grip_3_supra", 2),
-	ChallengeSeriesEvent("L6R_Ebisu", "20.gr.1", "fe_grip_1_rx8"),
+	ChallengeSeriesEvent("L6R_INFINEON", "25.gr.1", "fe_grip_2_eclipse", 2),
+	ChallengeSeriesEvent("L6R_Ebisu", "28.gr.1", "fe_grip_1_rx8"),
 	ChallengeSeriesEvent("L6R_WillowSprings", "3.gr.2", "sc_entourage_1_sc"),
 	ChallengeSeriesEvent("L6R_ChicagoAirfield", "7.gr.1", "showdown_king_final_grip"),
-	//ChallengeSeriesEvent("L6R_Ebisu", "50.sd.3", "drift_entourage_3_drift"),
+	ChallengeSeriesEvent("L6R_Ebisu", "20.sd.1", "drift_entourage_3_drift"),
+	ChallengeSeriesEvent("L6R_INFINEON", "75.sd.1", "fe_drift_2_350z"),
 	ChallengeSeriesEvent("L6R_Ebisu", "22.hs.1", "fe_sc_3_caymans"),
 	ChallengeSeriesEvent("L6R_ShutoDrift", "so.9.2.4", "fe_grip_2_g35", 2),
 	ChallengeSeriesEvent("L6R_PortlandRaceway", "35.gr.1", "fe_grip_2_cosworth", 2),
 	ChallengeSeriesEvent("L6R_MondelloPark", "21.gr.1", "p_ch_t3_autob_grip", 1),
+	ChallengeSeriesEvent("L6R_ShutoDrift", "16.sd.1", "fe_drift_1_240sx"),
 	ChallengeSeriesEvent("L6R_INFINEON", "25.gr.1", "fe_grip_2_eclipse", 2),
 	ChallengeSeriesEvent("L6R_ShutoDrift", "so.9.2.1", "fe_sc_2_rx8"),
 	ChallengeSeriesEvent("L6R_TexasSpeedway", "31.gr.1", "fe_grip_3_murc640", 2),
@@ -230,7 +256,7 @@ void OnChallengeSeriesEventPB() {
 ChallengeSeriesEvent* pEventToStart = nullptr;
 void ChallengeSeriesMenu() {
 	for (auto& event : aNewChallengeSeries) {
-		if (event.IsDriftEvent()) continue;
+		//if (event.IsDriftEvent()) continue;
 
 		auto pb = event.GetPBGhost();
 		auto target = event.GetTargetGhost();
