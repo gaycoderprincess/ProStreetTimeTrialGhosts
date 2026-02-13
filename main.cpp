@@ -107,6 +107,11 @@ void MainLoop() {
 			}
 			racer->mStats.local.mDriftFactor = 1.0;
 		}
+
+		auto cars = GetActiveVehicles();
+		for (auto& car : cars) {
+			car->SetDraftZoneModifier(0.0);
+		}
 	}
 
 	if (pEventToStart) {
@@ -199,6 +204,15 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x5BEA1E, 0x6DBC10); // ReloadTrack instead of UnloadTrack, for the totaled prompt
 
 			NyaHookLib::Patch<uint8_t>(0x6DD308 + 4, 0); // remove steering wheel bonus for drifting
+
+			// disable drafting
+			NyaHookLib::Patch<uint8_t>(0x477155, 0xEB);
+			NyaHookLib::Patch<uint8_t>(0x4773BF, 0xEB);
+			NyaHookLib::Patch<uint8_t>(0x4773DF, 0xEB);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x477440, 0x4775EB);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x477615, 0x4776C8);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x477706, 0x4778B3);
+			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4771E0, 0x4773A5);
 
 			SetRacerAIEnabled(false);
 
