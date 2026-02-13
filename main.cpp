@@ -91,6 +91,16 @@ void MainLoop() {
 		auto profile = &UserProfile::spUserProfiles[0]->mOptionsSettings;
 		profile->TheGameplaySettings.NamesAboveOn = 0;
 		gIngameSettings.SpeedoUnits = profile->TheGameplaySettings.SpeedoUnits;
+		gIngameSettings.MasterVol = profile->TheAudioSettings.MasterVol;
+		gIngameSettings.SpeechVol = profile->TheAudioSettings.SpeechVol;
+		gIngameSettings.FEMusicVol = profile->TheAudioSettings.FEMusicVol;
+		gIngameSettings.IGMusicVol = profile->TheAudioSettings.IGMusicVol;
+		gIngameSettings.SoundEffectsVol = profile->TheAudioSettings.SoundEffectsVol;
+		gIngameSettings.EngineVol = profile->TheAudioSettings.EngineVol;
+		gIngameSettings.CarVol = profile->TheAudioSettings.CarVol;
+		gIngameSettings.AmbientVol = profile->TheAudioSettings.AmbientVol;
+		gIngameSettings.SpeedVol = profile->TheAudioSettings.SpeedVol;
+		gIngameSettings.EATraxMode = profile->TheAudioSettings.EATraxMode;
 
 		if (auto settings = GetLocalPlayer()->GetSettings()) {
 			settings->BestLineOn = gIngameSettings.BestLineOn;
