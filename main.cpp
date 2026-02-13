@@ -88,6 +88,10 @@ void MainLoop() {
 	TimeTrialLoop();
 
 	if (auto ply = GetLocalPlayerVehicle()) {
+		auto profile = &UserProfile::spUserProfiles[0]->mOptionsSettings;
+		profile->TheGameplaySettings.NamesAboveOn = 0;
+		gIngameSettings.SpeedoUnits = profile->TheGameplaySettings.SpeedoUnits;
+
 		if (auto settings = GetLocalPlayer()->GetSettings()) {
 			settings->BestLineOn = gIngameSettings.BestLineOn;
 			settings->Transmission = gIngameSettings.Transmission;
