@@ -240,7 +240,7 @@ void SetRacerName(GRacerInfo* racer, const char* name) {
 }
 
 const char* GetLocalPlayerName() {
-	return GRaceStatus::fObj->mRacerInfo[0].mName;
+	return GetRacerInfoFromHandle(GetLocalPlayerSimable())->mName;
 }
 
 std::string FormatScore(int a1) {
