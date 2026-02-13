@@ -178,7 +178,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 				NyaHooks::D3DResetHook::aFunctions.push_back(OnD3DReset);
 
 				NyaHookLib::Patch<double>(0x9FABF8, 1.0 / 120.0); // set sim framerate
-				
+				NyaHookLib::Patch<float>(0x9EE934, 1.0 / 120.0); // set sim max framerate
+
 				ApplyVerificationPatches();
 
 				*(void**)0xACDDD4 = (void*)&VehicleConstructHooked;
