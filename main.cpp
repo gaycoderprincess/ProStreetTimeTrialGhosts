@@ -176,9 +176,10 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 				NyaHooks::D3DEndSceneHook::aFunctions.push_back(D3DHookMain);
 				NyaHooks::D3DResetHook::aFunctions.push_back(OnD3DReset);
 
+				NyaHookLib::Patch<double>(0x9FABF8, 1.0 / 120.0); // set sim framerate
+				
 				ApplyVerificationPatches();
 
-				NyaHookLib::Patch<double>(0x9FABF8, 1.0 / 120.0); // set sim framerate
 				*(void**)0xACDDD4 = (void*)&VehicleConstructHooked;
 				if (GetModuleHandleA("NFSPSExtraOptions.asi") || std::filesystem::exists("NFSPSExtraOptionsSettings.ini") || std::filesystem::exists("scripts/NFSPSExtraOptionsSettings.ini")) {
 					MessageBoxA(nullptr, "Potential unfair advantage detected! Please remove NFSPSExtraOptions from your game before using this mod.", "nya?!~", MB_ICONERROR);
