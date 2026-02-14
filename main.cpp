@@ -191,6 +191,7 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHooks::LateInitHook::aPreFunctions.push_back(FileIntegrity::VerifyGameFiles);
 			NyaHooks::LateInitHook::aFunctions.push_back([]() {
 				NyaHooks::PlaceD3DHooks();
+				NyaHooks::WorldServiceHook::Init();
 				NyaHooks::WorldServiceHook::aPreFunctions.push_back(CollectPlayerPos);
 				NyaHooks::WorldServiceHook::aPostFunctions.push_back(CheckPlayerPos);
 				NyaHooks::D3DEndSceneHook::aFunctions.push_back(D3DHookMain);
