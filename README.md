@@ -1,6 +1,6 @@
 # ProStreet Time Trial Ghosts
 
-A mod for Need for Speed: ProStreet that replaces Quick Race opponents with TrackMania-like replays
+A mod for Need for Speed: ProStreet that replaces opponents with TrackMania-like replays
 
 ## Installation
 
@@ -8,6 +8,8 @@ A mod for Need for Speed: ProStreet that replaces Quick Race opponents with Trac
 - Plop the files into your game folder.
 - Start the game and press F5 to open the mod's menu and play the included Challenge Series.
 - Enjoy, nya~ :3
+
+Please note that due to the broken nature of this game, the main menu had to be made inaccessible, and game settings are not loaded! You'll have to change your control settings every time you relaunch the game
 
 ## Features
 
