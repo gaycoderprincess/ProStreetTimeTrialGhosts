@@ -222,7 +222,6 @@ std::vector<ChallengeSeriesEvent> aNewChallengeSeries = {
 	ChallengeSeriesEvent("L6R_PortlandRaceway", "35.gr.1", "fe_grip_2_cosworth", 2),
 	ChallengeSeriesEvent("L6R_MondelloPark", "21.gr.1", "p_ch_t3_autob_grip", 1),
 	ChallengeSeriesEvent("L6R_ShutoDrift", "16.sd.1", "fe_drift_1_240sx"),
-	ChallengeSeriesEvent("L6R_INFINEON", "25.gr.1", "fe_grip_2_eclipse", 2),
 	ChallengeSeriesEvent("L6R_ShutoDrift", "so.9.2.1", "fe_sc_2_rx8"),
 	ChallengeSeriesEvent("L6R_TexasSpeedway", "31.gr.1", "fe_grip_3_murc640", 2),
 };
