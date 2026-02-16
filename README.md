@@ -18,6 +18,7 @@ Please note that due to the broken nature of this game, the main menu had to be 
 - Ghosts are timed based on game ticks, meaning the timebug no longer applies anymore
 - Ghosts include a checksum of the player's game files, allowing you to check if someone's made any potentially unfair VLT modifications
 - Ghosts include player inputs, and while they're not directly usable for playback (the game is not deterministic) it can still be used to verify legitimacy
+- Resetting your car will immediately restart the race, TrackMania style (can be turned off in the settings)
 - Tank Unslapper is included in the mod, enabled by default, and ghosts are cleanly separated by whether they have the steering delay removed or not
 - The mod includes a basic anti-cheat, preventing common methods of cheating
 - The physics tickrate has been locked to 120, meaning Widescreen Fix no longer gives you an unfair advantage
