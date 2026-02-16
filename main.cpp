@@ -156,6 +156,12 @@ void __stdcall InputTest(void* a1, void* a2) {
 	}
 }
 
+// enable resetting at any speed if race restart on reset is on
+float ResetSpeedHooked(float a1) {
+	if (bFastRestart) return 0.0;
+	return std::abs(a1);
+}
+
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 	switch( fdwReason ) {
 		case DLL_PROCESS_ATTACH: {
@@ -228,6 +234,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x477615, 0x4776C8);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x477706, 0x4778B3);
 			NyaHookLib::PatchRelative(NyaHookLib::JMP, 0x4771E0, 0x4773A5);
+
+			NyaHookLib::PatchRelative(NyaHookLib::CALL, 0x41B0EB, &ResetSpeedHooked);
 
 			SetRacerAIEnabled(false);
 
