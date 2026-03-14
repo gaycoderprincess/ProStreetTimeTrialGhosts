@@ -201,7 +201,7 @@ public:
 	}
 };
 
-std::vector<ChallengeSeriesEvent> aNewChallengeSeries = {
+std::vector<ChallengeSeriesEvent> aNewChallengeSeriesVanilla = {
 	ChallengeSeriesEvent("L6R_ChicagoAirfield", "1.gr.1", "player_d_day", 2),
 	ChallengeSeriesEvent("L6R_AutobahnDrift", "14.gr.1", "grip_king", 2),
 	ChallengeSeriesEvent("L6R_NevadaDrift", "5.gr.1", "p_ch_t1_nvd_grip"),
@@ -226,21 +226,48 @@ std::vector<ChallengeSeriesEvent> aNewChallengeSeries = {
 	ChallengeSeriesEvent("L6R_TexasSpeedway", "31.gr.1", "fe_grip_3_murc640", 2),
 };
 
+std::vector<ChallengeSeriesEvent> aNewChallengeSeriesMW = {
+	ChallengeSeriesEvent("L6R_ChicagoAirfield", "1.gr.1", "player_d_day", 2),
+	ChallengeSeriesEvent("L6R_AutobahnDrift", "14.gr.1", "grip_king", 2),
+	ChallengeSeriesEvent("L6R_NevadaDrift", "5.gr.1", "p_ch_t1_nvd_grip"),
+	ChallengeSeriesEvent("L6R_Autopolis", "19.gr.2", "energizer_viper"),
+	ChallengeSeriesEvent("L6R_AutobahnDrift", "34.td.1", "drift_king"),
+	ChallengeSeriesEvent("L6R_NevadaDrift", "82.hs.2", "b_opp_22_sc"),
+	ChallengeSeriesEvent("L6R_LEIPZIG", "lg.9.1.6", "showdown_entourage_2_drift"),
+	ChallengeSeriesEvent("L6R_AutobahnDrift", "17.hs.1", "fe_sc_3_fordgt"),
+	ChallengeSeriesEvent("L6R_LEIPZIG", "lg.9.2.6", "fe_grip_3_supra", 2),
+	ChallengeSeriesEvent("L6R_INFINEON", "25.gr.1", "fe_grip_2_eclipse", 2),
+	ChallengeSeriesEvent("L6R_Ebisu", "28.gr.1", "fe_grip_1_rx8"),
+	ChallengeSeriesEvent("L6R_WillowSprings", "3.gr.2", "sc_entourage_1_sc"),
+	ChallengeSeriesEvent("L6R_ChicagoAirfield", "7.gr.1", "showdown_king_final_grip"),
+	ChallengeSeriesEvent("L6R_Ebisu", "20.sd.1", "drift_entourage_3_drift"),
+	ChallengeSeriesEvent("L6R_INFINEON", "75.sd.1", "fe_drift_2_350z"),
+	ChallengeSeriesEvent("L6R_Ebisu", "22.hs.1", "fe_sc_3_caymans"),
+	ChallengeSeriesEvent("L6R_ShutoDrift", "so.9.2.4", "fe_grip_2_g35", 2),
+	ChallengeSeriesEvent("L6R_PortlandRaceway", "35.gr.1", "fe_grip_2_cosworth", 2),
+	ChallengeSeriesEvent("L6R_MondelloPark", "21.gr.1", "p_ch_t3_autob_grip", 1),
+	ChallengeSeriesEvent("L6R_ShutoDrift", "16.sd.1", "fe_drift_1_240sx"),
+	ChallengeSeriesEvent("L6R_ShutoDrift", "so.9.2.1", "fe_sc_2_rx8"),
+	ChallengeSeriesEvent("L6R_TexasSpeedway", "31.gr.1", "fe_grip_3_murc640", 2),
+};
+
+std::vector<ChallengeSeriesEvent>* aNewChallengeSeries = &aNewChallengeSeriesVanilla;
+
 ChallengeSeriesEvent* GetChallengeEvent(uint32_t hash) {
-	for (auto& event : aNewChallengeSeries) {
+	for (auto& event : *aNewChallengeSeries) {
 		if (!GRaceDatabase::GetRaceFromHash(GRaceDatabase::mObj, Attrib::StringHash32(event.sEventName.c_str()))) {
 			MessageBoxA(0, std::format("Failed to find event {}", event.sEventName).c_str(), "nya?!~", MB_ICONERROR);
 			exit(0);
 		}
 	}
-	for (auto& event : aNewChallengeSeries) {
+	for (auto& event : *aNewChallengeSeries) {
 		if (Attrib::StringHash32(event.sEventName.c_str()) == hash) return &event;
 	}
 	return nullptr;
 }
 
 ChallengeSeriesEvent* GetChallengeEvent(const std::string& str) {
-	for (auto& event : aNewChallengeSeries) {
+	for (auto& event : *aNewChallengeSeries) {
 		if (event.sEventName == str) return &event;
 	}
 	return nullptr;
@@ -254,7 +281,7 @@ void OnChallengeSeriesEventPB() {
 
 ChallengeSeriesEvent* pEventToStart = nullptr;
 void ChallengeSeriesMenu() {
-	for (auto& event : aNewChallengeSeries) {
+	for (auto& event : *aNewChallengeSeries) {
 		auto pb = event.GetPBGhost();
 		auto target = event.GetTargetGhost();
 		auto optionName = std::format("{} - {}", event.GetEventTypeName(), event.GetTrackName());

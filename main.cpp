@@ -203,6 +203,11 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, LPVOID) {
 				NyaHooks::D3DEndSceneHook::aFunctions.push_back(D3DHookMain);
 				NyaHooks::D3DResetHook::aFunctions.push_back(OnD3DReset);
 
+				gProStreetModData.Check();
+				if (gProStreetModData.bCwoeeMostWantedHandling) {
+					aNewChallengeSeries = &aNewChallengeSeriesMW;
+				}
+
 				NyaHookLib::Patch<double>(0x9FABF8, 1.0 / 120.0); // set sim framerate
 				NyaHookLib::Patch<float>(0x9EE934, 1.0 / 120.0); // set sim max framerate
 
